@@ -1,1 +1,1 @@
-# globallink-upload-media-master
+# pmc-upload-media
