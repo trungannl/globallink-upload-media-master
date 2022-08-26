@@ -6,27 +6,24 @@ phases:
       - echo Connecting to Amazon ECR...
       - aws --version
       # - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-      - aws ecr get-login-password --region ap-south-1 | docker login
-        --username AWS --password-stdin
-        631583100511.dkr.ecr.ap-south-1.amazonaws.com
-      - REPOSITORY_URI=631583100511.dkr.ecr.ap-south-1.amazonaws.com/globallinkmedia
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 631583100511.dkr.ecr.ap-south-1.amazonaws.com
+      - REPOSITORY_URI=631583100511.dkr.ecr.ap-south-1.amazonaws.com/globallinkupmedia
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t globallink-upload-media-master:latest .
-      - docker tag globallink-upload-media-master:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker build -t globallink-upload-media-master .
+      - docker tag globallink-upload-media-master:latest $REPOSITORY_URI:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-      - docker push globallink-upload-media-master:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
       - echo Writing image definitions file...
       - printf '[{"name":"globallink-upload-media-master","imageUri":"%s"}]'
-        $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+        $REPOSITORY_URI:latest > imagedefinitions.json
       - cat imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
